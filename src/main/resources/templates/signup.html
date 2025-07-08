@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up - Stock Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to right, #74ebd5, #ACB6E5);
+            font-family: Arial, sans-serif;
+            padding: 60px 20px;
+        }
+        .signup-form {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 450px;
+            margin: auto;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .form-control:focus {
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        }
+    </style>
+</head>
+<body>
+
+<div class="signup-form">
+    <h3 class="text-center text-primary mb-4">Create Account</h3>
+
+    <!-- ✅ Feedback Messages -->
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+
+    <form th:action="@{/signup}" method="post" class="needs-validation" novalidate>
+        <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" name="username" class="form-control" placeholder="Enter username" required minlength="3" maxlength="20" autofocus>
+            <div class="invalid-feedback">Username must be 3–20 characters.</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            <div class="input-group">
+                <input type="password" name="password" id="password" class="form-control" placeholder="Enter password" required minlength="4">
+                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">👁️</button>
+            </div>
+            <div class="invalid-feedback">Password must be at least 4 characters long.</div>
+        </div>
+
+        <div class="d-grid mb-2">
+            <button type="submit" class="btn btn-success">Sign Up</button>
+        </div>
+
+        <p class="text-center mt-3">Already registered?
+            <a th:href="@{/login}">Login here</a>
+        </p>
+    </form>
+</div>
+
+<!-- 👁️ Password Toggle -->
+<script>
+    function togglePassword() {
+        const pwd = document.getElementById("password");
+        pwd.type = pwd.type === "password" ? "text" : "password";
+    }
+</script>
+
+<!-- ✅ Bootstrap Validation Script -->
+<script>
+    (function () {
+        'use strict';
+        window.addEventListener('load', function () {
+            const forms = document.getElementsByClassName('needs-validation');
+            Array.prototype.forEach.call(forms, function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+
+</body>
+</html>

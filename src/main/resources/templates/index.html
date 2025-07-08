@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📦 Stock Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            font-family: 'Rubik', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .video-bg {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            z-index: -1;
+            object-fit: cover;
+            filter: brightness(0.6);
+        }
+
+        .navbar {
+            backdrop-filter: blur(10px);
+        }
+
+        .container {
+            padding: 100px 40px 60px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 48px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .btn-custom {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-weight: bold;
+            border-radius: 30px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: 0.3s;
+            border: 1px solid #00cec9;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            backdrop-filter: blur(6px);
+        }
+
+        .btn-custom:hover {
+            background-color: #00cec9;
+            color: black;
+        }
+
+        .dashboard {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            color: #2d3436;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .highlight {
+            color: red;
+            font-weight: bold;
+        }
+
+        .search-bar, .filter-bar {
+            margin: 20px 0;
+        }
+
+        .search-bar input[type="text"],
+        .filter-bar select {
+            padding: 10px 15px;
+            border-radius: 25px;
+            border: 1px solid #ccc;
+            width: 250px;
+        }
+
+        .search-bar button,
+        .filter-bar button {
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: none;
+            background-color: #00b894;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .filter-bar a {
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin-left: 10px;
+            background-color: gray;
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .filter-bar a:hover {
+            background-color: #636e72;
+        }
+
+        .table th {
+            background: #0984e3;
+            color: white;
+        }
+
+        .table tbody tr:hover {
+            background-color: #dfe6e9;
+            transition: 0.3s;
+        }
+
+        .table td, .table th {
+            vertical-align: middle;
+        }
+
+        .product-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<video autoplay muted loop class="video-bg">
+    <source th:src="@{/videos/finance-bg.mp4}" type="video/mp4">
+</video>
+
+<nav class="navbar navbar-dark bg-dark fixed-top px-4">
+    <span class="navbar-brand mb-0 h1">📦 Stock Management</span>
+    <div>
+        <span th:if="${session.currentUser != null}" class="text-white me-3">
+            👤 <span th:text="${session.currentUser.username}">Admin</span>
+        </span>
+
+        <a th:if="${session.currentUser != null}" href="/change-password" class="btn btn-info btn-sm me-2">Change Password</a>
+
+        <a th:if="${session.currentUser == null}" href="/login" class="btn btn-warning btn-sm">Login</a>
+        <a th:if="${session.currentUser != null}" href="/logout" class="btn btn-danger btn-sm">Logout</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>Welcome to Stock Management System</h1>
+
+    <div th:if="${session.currentUser != null and session.currentUser.role == 'ADMIN'}" class="mb-4 d-flex flex-wrap gap-3">
+        <a class="btn btn-custom" href="/add"><i class="fas fa-plus"></i> Add Product</a>
+        <a class="btn btn-custom" href="/download-pdf"><i class="fas fa-file-pdf"></i> Download PDF Report</a>
+        <a class="btn btn-custom" href="/report"><i class="fas fa-envelope"></i> Send PDF Report via Email</a>
+        <a class="btn btn-custom" href="/analytics"><i class="fas fa-chart-bar"></i> View Analytics</a>
+    </div>
+
+    <div class="mb-4">
+        <a class="btn btn-custom" href="/support"><i class="fas fa-question-circle"></i> Help & Support</a>
+    </div>
+
+    <div class="search-bar">
+        <form th:action="@{/search}" method="get" class="d-flex">
+            <input type="text" name="keyword" class="form-control me-2" placeholder="Search product..." />
+            <button type="submit" class="btn btn-success">Search</button>
+        </form>
+    </div>
+
+    <div class="filter-bar">
+        <form th:action="@{/filter}" method="get" class="d-flex">
+            <select name="category" class="form-select me-2">
+                <option value="">-- Filter by Category --</option>
+                <option th:each="cat : ${categories}" th:value="${cat.name}" th:text="${cat.name}"></option>
+            </select>
+            <button type="submit" class="btn btn-primary me-2">Filter</button>
+            <a href="/" class="btn btn-secondary">Show All</a>
+        </form>
+    </div>
+
+    <div class="info-box mt-3">
+        <p>Total Products: <strong th:text="${totalItems}">0</strong></p>
+        <p>Total Quantity in Stock: <strong th:text="${totalStock}">0</strong></p>
+        <p class="highlight">Low Stock Items: <span th:text="${lowStockCount}">0</span></p>
+    </div>
+
+    <div class="dashboard">
+        <table class="table table-striped table-hover text-center">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Category</th>
+                    <th th:if="${session.currentUser != null and session.currentUser.role == 'ADMIN'}">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="product : ${products}">
+                    <td th:text="${product.id}">1</td>
+                    <td>
+                        <img th:if="${product.image != null}" th:src="@{'/images/' + ${product.image}}" class="product-img">
+                        <span th:if="${product.image == null}">No Image</span>
+                    </td>
+                    <td th:text="${product.name}">Product Name</td>
+                    <td th:text="${product.quantity}" th:class="${product.quantity < 10} ? 'text-danger fw-bold' : ''">0</td>
+                    <td th:text="${product.price}">0.00</td>
+                    <td th:text="${product.category}">Category</td>
+                    <td>
+                        <div th:if="${session.currentUser != null and session.currentUser.role == 'ADMIN'}">
+                            <a th:href="@{'/edit/' + ${product.id}}" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i> Edit</a>
+                            <a th:href="@{'/sell/' + ${product.id}}" class="btn btn-primary btn-sm"><i class="fas fa-arrow-right"></i> Sell</a>
+                            <a th:href="@{'/delete/' + ${product.id}}" class="btn btn-danger btn-sm"
+                            
+                               onclick="return confirm('Are you sure you want to delete this product?');"><i class="fas fa-trash-alt"></i> Delete</a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<footer>
+    &copy; 2025 Stock Management System | Powered by Stock Management |
+    <a href="/support" style="color: #00cec9;">Help & Support</a>
+</footer>
+
+</body>
+</html>
