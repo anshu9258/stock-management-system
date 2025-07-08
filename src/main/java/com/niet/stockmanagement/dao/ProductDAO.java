@@ -122,7 +122,8 @@ public class ProductDAO {
         }
     }
 
-    public List<Product> searchByKeyword(String keyword) {
+    // ✅ Fixed: renamed method as expected in controller
+    public List<Product> searchProductsByKeyword(String keyword) {
         List<Product> products = new ArrayList<>();
         String sql = "SELECT * FROM products WHERE name LIKE ? OR category LIKE ?";
 
@@ -166,7 +167,41 @@ public class ProductDAO {
         return products;
     }
 
-    // ✅ For Analytics Dashboard
+    public int getTotalStock() {
+        String sql = "SELECT SUM(quantity) AS total FROM products";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error fetching total stock: " + e.getMessage());
+        }
+
+        return 0;
+    }
+
+    public int getLowStockCount() {
+        String sql = "SELECT COUNT(*) FROM products WHERE quantity < 10";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error fetching low stock count: " + e.getMessage());
+        }
+
+        return 0;
+    }
 
     public List<String> getAllCategories() {
         List<String> categories = new ArrayList<>();
@@ -208,6 +243,7 @@ public class ProductDAO {
 
     public int getTotalProductCount() {
         String sql = "SELECT COUNT(*) FROM products";
+
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
@@ -219,23 +255,7 @@ public class ProductDAO {
         } catch (SQLException e) {
             System.err.println("❌ Error fetching product count: " + e.getMessage());
         }
-        return 0;
-    }
 
-    public int getLowStockCount() {
-        String sql = "SELECT COUNT(*) FROM products WHERE quantity < 10";
-
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-
-        } catch (SQLException e) {
-            System.err.println("❌ Error fetching low stock count: " + e.getMessage());
-        }
         return 0;
     }
 

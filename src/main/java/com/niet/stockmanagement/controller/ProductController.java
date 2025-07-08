@@ -48,28 +48,21 @@ public class ProductController {
     @PostMapping("/add")
     public String addProduct(@ModelAttribute Product product, HttpSession session) {
         if (!isAdmin(session)) return "redirect:/unauthorized";
-
         try {
             MultipartFile imageFile = product.getImageFile();
-
             if (imageFile != null && !imageFile.isEmpty()) {
                 String imageName = System.currentTimeMillis() + "_" + imageFile.getOriginalFilename();
                 String uploadDir = "uploads";
                 File folder = new File(uploadDir);
                 if (!folder.exists()) folder.mkdirs();
-
                 Path path = Paths.get(uploadDir, imageName);
                 Files.write(path, imageFile.getBytes());
-
                 product.setImage(imageName);
             }
-
             productDAO.insertProduct(product);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return "redirect:/";
     }
 
@@ -85,28 +78,21 @@ public class ProductController {
     @PostMapping("/update")
     public String updateProduct(@ModelAttribute Product product, HttpSession session) {
         if (!isAdmin(session)) return "redirect:/unauthorized";
-
         try {
             MultipartFile imageFile = product.getImageFile();
-
             if (imageFile != null && !imageFile.isEmpty()) {
                 String imageName = System.currentTimeMillis() + "_" + imageFile.getOriginalFilename();
                 String uploadDir = "uploads";
                 File folder = new File(uploadDir);
                 if (!folder.exists()) folder.mkdirs();
-
                 Path path = Paths.get(uploadDir, imageName);
                 Files.write(path, imageFile.getBytes());
-
                 product.setImage(imageName);
             }
-
             productDAO.updateProduct(product);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return "redirect:/";
     }
 
@@ -130,7 +116,6 @@ public class ProductController {
         try {
             Path imagePath = Paths.get("uploads").resolve(filename);
             Resource resource = new UrlResource(imagePath.toUri());
-
             if (resource.exists() && resource.isReadable()) {
                 String contentType = Files.probeContentType(imagePath);
                 return ResponseEntity.ok()
@@ -139,7 +124,6 @@ public class ProductController {
             } else {
                 return ResponseEntity.notFound().build();
             }
-
         } catch (IOException e) {
             return ResponseEntity.internalServerError().build();
         }
@@ -148,10 +132,8 @@ public class ProductController {
     @GetMapping("/delete-image/{id}")
     public String deleteImage(@PathVariable int id, HttpSession session) {
         if (!isAdmin(session)) return "redirect:/unauthorized";
-
         try {
             Product product = productDAO.getProductById(id);
-
             if (product != null && product.getImage() != null) {
                 Path imagePath = Paths.get("uploads", product.getImage());
                 Files.deleteIfExists(imagePath);
@@ -161,16 +143,39 @@ public class ProductController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return "redirect:/edit/" + id;
     }
 
-    // ✅ PDF Report Generation
+    @GetMapping("/search")
+    public String searchProducts(@RequestParam("keyword") String keyword, Model model, HttpSession session) {
+        if (session.getAttribute("currentUser") == null) return "redirect:/login";
+        List<Product> products = productDAO.searchProductsByKeyword(keyword);
+        model.addAttribute("products", products);
+        model.addAttribute("categories", categoryDAO.getAllCategories());
+        model.addAttribute("totalItems", products.size());
+        model.addAttribute("totalStock", productDAO.getTotalStock());
+        model.addAttribute("lowStockCount", productDAO.getLowStockCount());
+        return "index";
+    }
+
+    @GetMapping("/filter")
+    public String filterByCategory(@RequestParam("category") String category, Model model, HttpSession session) {
+        if (session.getAttribute("currentUser") == null) return "redirect:/login";
+        List<Product> products = (category == null || category.isEmpty())
+                ? productDAO.getAllProducts()
+                : productDAO.getProductsByCategory(category);
+        model.addAttribute("products", products);
+        model.addAttribute("categories", categoryDAO.getAllCategories());
+        model.addAttribute("totalItems", products.size());
+        model.addAttribute("totalStock", productDAO.getTotalStock());
+        model.addAttribute("lowStockCount", productDAO.getLowStockCount());
+        return "index";
+    }
+
     @GetMapping("/download-pdf")
     public void downloadPdf(HttpServletResponse response) {
         try {
             List<Product> products = productDAO.getAllProducts();
-
             response.setContentType("application/pdf");
             response.setHeader("Content-Disposition", "attachment; filename=inventory_report.pdf");
 
